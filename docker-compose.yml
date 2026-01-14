@@ -6,6 +6,7 @@ services:
     container_name: mailspring
     ports:
       - "6379:6379" # Web interface
+      - "6080:6080" # GUI (noVNC)
     volumes:
       - ./data/config:/home/mailspring/.config/Mailspring
       - ./data/cache:/home/mailspring/.cache

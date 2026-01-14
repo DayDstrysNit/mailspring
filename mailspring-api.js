@@ -62,6 +62,8 @@ app.get('/', (req, res) => {
         .status.ok { background: #d4edda; color: #155724; }
         .status.error { background: #f8d7da; color: #721c24; }
         .info { background: #e7f3ff; padding: 10px; border-left: 4px solid #2196F3; margin: 10px 0; }
+        .gui-link { display: block; background: #28a745; color: white; text-align: center; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 20px 0; font-size: 1.2em; }
+        .gui-link:hover { background: #218838; }
         button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
         button:hover { background: #0056b3; }
       </style>
@@ -69,6 +71,7 @@ app.get('/', (req, res) => {
     <body>
       <div class="container">
         <h1>📧 Mailspring Control Panel</h1>
+        <a href="http://localhost:6080/vnc.html?autoconnect=true" target="_blank" class="gui-link">Open Mailspring Desktop Interface</a>
         <div id="status"></div>
         <div id="accounts"></div>
         <div class="info">

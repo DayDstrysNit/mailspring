@@ -16,7 +16,8 @@ docker-compose up -d
 docker-compose ps
 ```
 
-**Access**: http://localhost:6379
+**GUI Access**: http://localhost:6080/vnc.html?autoconnect=true
+**API/Stats**: http://localhost:6379
 
 ---
 
@@ -51,7 +52,8 @@ docker-compose ps
 
 | Service     | Port | Purpose                              |
 |------------|------|--------------------------------------|
-| Mailspring | 6379 | Email client API + web dashboard     |
+| Mailspring GUI | 6080 | Interactive Linux Desktop Interface |
+| Mailspring API | 6379 | Email client API + web dashboard     |
 | Paperless  | 8010 | Document management                 |
 | n8n        | 5678 | Workflow automation                 |
 | Ollama     | 11434| Local LLM inference                 |
@@ -157,14 +159,14 @@ These are mounted as volumes, persisting across container restarts.
    docker-compose logs mailspring
    ```
 
-3. **Access web interface**
+3. **Access GUI**
+   - Navigate to: http://localhost:6080/vnc.html?autoconnect=true
+   - You will see the Mailspring desktop interface.
+   - Follow the in-app setup to add your first email account.
+
+4. **Access web interface**
    - Navigate to: http://localhost:6379
    - Status should show "running"
-
-4. **Add email account** (via configuration)
-   - Container runs in headless mode
-   - Email accounts configured via config file or API
-   - See DOCKER_SETUP.md for detailed account setup
 
 ---
 

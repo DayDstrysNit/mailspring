@@ -36,9 +36,9 @@ cat > /tmp/mailspring_entry.json << 'EOF'
   "description": "Beautiful, fast email client with local sync engine",
   "icon": "📧",
   "port": 6379,
-  "url": "http://localhost:6379",
+  "url": "http://localhost:6080/vnc.html?autoconnect=true",
   "category": "Communication",
-  "status": "running",
+  "status": "active",
   "healthCheck": "http://localhost:6379/health",
   "features": [
     "Email Sync (IMAP/SMTP)",
