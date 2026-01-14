@@ -1,4 +1,4 @@
-FROM node:18-bullseye
+FROM node:20-bookworm
 
 # Install Mailspring build dependencies and Xvfb for headless display
 RUN apt-get update && apt-get install -y \
@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y \
     libnss3 \
     libxss1 \
     libappindicator3-1 \
-    libindicator7 \
     xvfb \
     ffmpeg \
     sqlite3 \
@@ -49,7 +48,7 @@ RUN mkdir -p ~/.config/Mailspring ~/.cache ~/.local/share
 RUN npm install express cors
 
 # Copy API server
-COPY mailspring-api.js /home/mailspring/mailspring-api.js
+COPY mailspring-api.js /home/mailspring/app/mailspring-api.js
 
 # Expose port
 EXPOSE 6379
@@ -58,6 +57,7 @@ EXPOSE 6379
 CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 & \
     sleep 2 && \
     export DISPLAY=:99 && \
-    npm start -- --dev > /tmp/mailspring.log 2>&1 & \
+    export ELECTRON_DISABLE_SANDBOX=1 && \
+    npm start -- --dev --no-sandbox > /tmp/mailspring.log 2>&1 & \
     sleep 10 && \
-    node /home/mailspring/mailspring-api.js"]
+    node /home/mailspring/app/mailspring-api.js"]

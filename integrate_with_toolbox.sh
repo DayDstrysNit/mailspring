@@ -54,14 +54,15 @@ EOF
 # Use jq to add Mailspring to the array (if jq is available)
 if command -v jq &> /dev/null; then
     echo "✓ Using jq to merge configurations..."
+    ENTRY_JSON=$(cat /tmp/mailspring_entry.json)
     
     # Check if Mailspring already exists
-    if jq '.[] | select(.name == "Mailspring")' "$EXTERNAL_TOOLS" > /dev/null 2>&1; then
+    if jq -e '.[] | select(.name == "Mailspring")' "$EXTERNAL_TOOLS" > /dev/null 2>&1; then
         echo "ℹ️  Mailspring already exists in external_tools.json. Updating..."
-        jq '(.[] | select(.name == "Mailspring")) |= (. + input)' "$EXTERNAL_TOOLS" /tmp/mailspring_entry.json > /tmp/external_tools_new.json
+        jq --argjson new "$ENTRY_JSON" '(.[] | select(.name == "Mailspring")) |= (. + $new)' "$EXTERNAL_TOOLS" > /tmp/external_tools_new.json
     else
         echo "ℹ️  Adding new Mailspring entry..."
-        jq '. += [input]' "$EXTERNAL_TOOLS" /tmp/mailspring_entry.json > /tmp/external_tools_new.json
+        jq --argjson new "$ENTRY_JSON" '. += [$new]' "$EXTERNAL_TOOLS" > /tmp/external_tools_new.json
     fi
     
     mv /tmp/external_tools_new.json "$EXTERNAL_TOOLS"
