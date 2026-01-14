@@ -1,0 +1,26 @@
+{
+  "name": "Mailspring",
+  "description": "Beautiful, fast email client with local sync engine",
+  "version": "1.16.0",
+  "icon": "📧",
+  "port": 6379,
+  "url": "http://localhost:6379",
+  "category": "Communication",
+  "status": "docker",
+  "healthCheck": "http://localhost:6379/health",
+  "features": [
+    "Unified Inbox",
+    "Email Organization",
+    "Local Sync Engine",
+    "Plugin Architecture",
+    "Read Receipts",
+    "Link Tracking (Pro)"
+  ],
+  "commands": {
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f mailspring",
+    "rebuild": "docker-compose build --no-cache"
+  },
+  "networks": ["tools-network"]
+}

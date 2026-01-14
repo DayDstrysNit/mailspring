@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mailspring:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mailspring
+    ports:
+      - "6379:6379" # Web interface
+    volumes:
+      - ./data/config:/home/mailspring/.config/Mailspring
+      - ./data/cache:/home/mailspring/.cache
+      - ./data/local:/home/mailspring/.local
+    environment:
+      - DISPLAY=:99
+      - MAIL_SYNC_DEBUG=0
+    networks:
+      - tools-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:6379/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  tools-network:
+    external: true
+
+volumes:
+  config:
+  cache:
+  local:
