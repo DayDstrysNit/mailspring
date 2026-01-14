@@ -38,6 +38,13 @@ RUN chown -R mailspring:mailspring /home/mailspring
 # Switch to mailspring user
 USER mailspring
 
+# Create a mock git command so postinstall.js doesn't fail
+RUN mkdir -p /home/mailspring/.bin && \
+    echo '#!/bin/bash\nif [[ "$*" == "submodule status ./mailsync" ]]; then echo "-dc00d36c9f78bcdf3dbfc53dd877e5c862679af3 mailsync"; else /usr/bin/git "$@"; fi' > /home/mailspring/.bin/git && \
+    chmod +x /home/mailspring/.bin/git
+
+ENV PATH="/home/mailspring/.bin:${PATH}"
+
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
@@ -60,7 +67,7 @@ EXPOSE 6379
 CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x800x24 > /dev/null 2>&1 & \
     sleep 2 && \
     export DISPLAY=:99 && \
-    x11vnc -display :99 -forever -shared -nopw -listen localhost -xkb > /dev/null 2>&1 & \
+    x11vnc -display :99 -forever -shared -nopw -xkb > /dev/null 2>&1 & \
     websockify --web /usr/share/novnc 6080 localhost:5900 > /dev/null 2>&1 & \
     export ELECTRON_DISABLE_SANDBOX=1 && \
     npm start -- --dev --no-sandbox > /tmp/mailspring.log 2>&1 & \
