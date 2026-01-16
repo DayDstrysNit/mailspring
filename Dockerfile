@@ -12,8 +12,16 @@ RUN apt-get update && apt-get install -y \
     libnss3 \
     libxss1 \
     libappindicator3-1 \
+    libsecret-1-0 \
+    libsecret-1-dev \
+    libtidy-dev \
     xvfb \
     x11vnc \
+    dbus-x11 \
+    libdbus-1-3 \
+    gnome-keyring \
+    firefox-esr \
+    openbox \
     novnc \
     websockify \
     ffmpeg \
@@ -21,6 +29,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     x11-apps \
+    xdotool \
+    python3-gi \
+    gir1.2-secret-1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create mailspring user
@@ -54,22 +65,22 @@ RUN npm run-script build || echo "Build completed with warnings"
 # Create config directories
 RUN mkdir -p ~/.config/Mailspring ~/.cache ~/.local/share
 
+# Fix noVNC index
+USER root
+RUN ln -s /usr/share/novnc/vnc.html /usr/share/novnc/index.html
+USER mailspring
+
 # Install express and cors for API server
 RUN npm install express cors
 
 # Copy API server
-COPY mailspring-api.js /home/mailspring/app/mailspring-api.js
+COPY --chown=mailspring:mailspring mailspring-api.js /home/mailspring/app/mailspring-api.js
 
 # Expose port
 EXPOSE 6379
 
 # Start Xvfb, VNC, noVNC and Mailspring with API server
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x800x24 > /dev/null 2>&1 & \
-    sleep 2 && \
-    export DISPLAY=:99 && \
-    x11vnc -display :99 -forever -shared -nopw -xkb > /dev/null 2>&1 & \
-    websockify --web /usr/share/novnc 6080 localhost:5900 > /dev/null 2>&1 & \
-    export ELECTRON_DISABLE_SANDBOX=1 && \
-    npm start -- --dev --no-sandbox > /tmp/mailspring.log 2>&1 & \
-    sleep 10 && \
-    node /home/mailspring/app/mailspring-api.js"]
+COPY --chown=mailspring:mailspring start.sh /home/mailspring/start.sh
+RUN chmod +x /home/mailspring/start.sh
+
+CMD ["/home/mailspring/start.sh"]

@@ -76,3 +76,15 @@ client_secret.json
 /app/mailsync.exe
 /app/mailsync.dSYM
 .idea
+
+# Docker & Persistence
+data/
+node_modules/
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.dmp
+*.meta
+*.dat
+*.keyring

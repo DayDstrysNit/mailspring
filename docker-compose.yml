@@ -5,11 +5,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mailspring
+    shm_size: '1gb'
     ports:
       - "6379:6379" # Web interface
       - "6080:6080" # GUI (noVNC)
     volumes:
       - ./data/config:/home/mailspring/.config/Mailspring
+      - ./data/config-dev:/home/mailspring/.config/Mailspring-dev
       - ./data/cache:/home/mailspring/.cache
       - ./data/local:/home/mailspring/.local
     environment:

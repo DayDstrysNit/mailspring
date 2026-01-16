@@ -3,12 +3,38 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 
+const { exec } = require('child_process');
+
 const app = express();
 const PORT = 6379;
 const MAILSPRING_CONFIG = path.join(process.env.HOME || '/home/mailspring', '.config/Mailspring');
+const MAILSPRING_CONFIG_DEV = path.join(process.env.HOME || '/home/mailspring', '.config/Mailspring-dev');
 
 app.use(cors());
 app.use(express.json());
+
+// Type text into the active window (emergency VNC bypass)
+app.post('/api/type', (req, res) => {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: 'No text provided' });
+
+    // Using xdotool to type text into the virtual display
+    const command = `export DISPLAY=:99 && xdotool type "${text.replace(/"/g, '\\"')}"`;
+
+    exec(command, (error) => {
+        if (error) {
+            return res.status(500).json({ error: error.message });
+        }
+        res.json({ status: 'sent', text: '******' });
+    });
+});
+
+// Helper to get actual config path
+const getConfigPath = () => {
+    const devPath = path.join(MAILSPRING_CONFIG_DEV, 'config.json');
+    if (fs.existsSync(devPath)) return devPath;
+    return path.join(MAILSPRING_CONFIG, 'config.json');
+};
 
 // Health check
 app.get('/health', (req, res) => {
@@ -18,12 +44,12 @@ app.get('/health', (req, res) => {
 // Get Mailspring status
 app.get('/api/status', (req, res) => {
     try {
-        const configPath = path.join(MAILSPRING_CONFIG, 'config.json');
+        const configPath = getConfigPath();
         const configExists = fs.existsSync(configPath);
 
         res.json({
             status: 'running',
-            configPath: MAILSPRING_CONFIG,
+            configPath: path.dirname(configPath),
             configured: configExists,
             version: '1.16.0'
         });
@@ -35,10 +61,11 @@ app.get('/api/status', (req, res) => {
 // Get accounts info (read-only)
 app.get('/api/accounts', (req, res) => {
     try {
-        const accountsFile = path.join(MAILSPRING_CONFIG, 'accounts.json');
-        if (fs.existsSync(accountsFile)) {
-            const data = JSON.parse(fs.readFileSync(accountsFile, 'utf8'));
-            res.json(data);
+        const configPath = getConfigPath();
+        if (fs.existsSync(configPath)) {
+            const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            const accounts = data["*"] ? data["*"].accounts : [];
+            res.json({ accounts: accounts || [] });
         } else {
             res.json({ accounts: [] });
         }
